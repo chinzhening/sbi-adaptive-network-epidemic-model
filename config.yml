@@ -1,0 +1,5 @@
+data_dir:
+  infected_timeseries: "data/infected_timeseries.csv"
+  rewiring_timeseries: "data/rewiring_timeseries.csv"
+  final_degree_histograms: "data/final_degree_histograms.csv"
+results_dir: "results"

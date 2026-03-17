@@ -46,7 +46,7 @@ def _simulate_one(adj, state, beta, gamma, rho, N, T):
  
     # Private work buffers — allocated once per replicate, reused across steps
     max_edges   = N * N
-    new_inf_buf = np.empty(N,         dtype=np.int64)
+    new_inf_buf = np.empty(N * N,     dtype=np.int64)
     si_s_buf    = np.empty(max_edges, dtype=np.int64)
     si_i_buf    = np.empty(max_edges, dtype=np.int64)
     cand_buf    = np.empty(N,         dtype=np.int64)
