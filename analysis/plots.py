@@ -3,50 +3,42 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 
-from .config import ABCResult 
-
+from config import ABCResult
 from scipy.stats import gaussian_kde
 
-def generate_diagnostics(result: ABCResult) -> tuple:
-    """Generates diagnostic plots and statistics for the given ABCResult.
-    
+def generate_diagnostics(result: ABCResult) -> tuple[dict, dict]:
+    """Generate all diagnostic plots and posterior statistics for a run.
+
+    Calls each individual plot function and packages the results.
+
     Parameters
     ----------
     result : ABCResult
-        The result of the ABC analysis
 
     Returns
     -------
     diagnostics : dict
-        A dictionary containing the generated diagnostic plots and statistics.
-        - 'distance_histogram': A histogram of distances of proposals to observed summary statistics.
-        - 'accepted_params_pairwise_plot': A pairwise scatter plot of accepted parameters.
-        - 'params_kde_and_ci': KDE plots and confidence intervals for accepted parameters.
+        Keys: "distance_histogram", "accepted_params_pairwise_plot",
+              "params_kde_and_ci". Values are matplotlib Figure objects.
     posterior_stats : dict
-        A dictionary of posterior statistics (mean, mode, 95% CI) for each parameter.
+        Keys: param names. Values: dicts with "mean", "kde_mode",
+              "ci_lower", "ci_upper".
     """
-
-    accepted_betas = result.accepted_params[:, 0]
-    accepted_gammas = result.accepted_params[:, 1]
-    accepted_rhos = result.accepted_params[:, 2]
+    betas  = result.accepted_params[:, 0]
+    gammas = result.accepted_params[:, 1]
+    rhos   = result.accepted_params[:, 2]
 
     diagnostics = {
-        "distance_histogram": plot_distance_histogram(
-            result.distances, result.epsilon
-        ),
-        "accepted_params_pairwise_plot": plot_accepted_params_pairwise(
-            accepted_betas, accepted_gammas, accepted_rhos
-        ),
-        "params_kde_and_ci": plot_params_kde_and_ci(
-            accepted_betas, accepted_gammas, accepted_rhos
-        ),
+        "distance_histogram":            plot_distance_histogram(result.distances, result.epsilon),
+        "accepted_params_pairwise_plot": plot_pairwise(betas, gammas, rhos),
+        "params_kde_and_ci":             plot_kde_and_ci(betas, gammas, rhos),
     }
 
-    posterior_stats = generate_posterior_stats(accepted_betas, accepted_gammas, accepted_rhos)
+    posterior_stats = compute_posterior_stats(betas, gammas, rhos)
 
     return diagnostics, posterior_stats
 
-def plot_params_kde_and_ci(betas, gammas, rhos, point_color="black"):
+def plot_kde_and_ci(betas, gammas, rhos, point_color="black"):
     """
     Generates KDE plots and confidence intervals for the accepted parameters.
 
@@ -77,7 +69,7 @@ def plot_params_kde_and_ci(betas, gammas, rhos, point_color="black"):
     fig.tight_layout()
     return fig
 
-def generate_posterior_stats(betas, gammas, rhos):
+def compute_posterior_stats(betas, gammas, rhos):
     """
     Generates posterior statistics (mean, mode, 95% CI) for the accepted parameters.
     
@@ -93,9 +85,9 @@ def generate_posterior_stats(betas, gammas, rhos):
         A dictionary containing the posterior statistics for each parameter.
 
     """
-    beta_stats = _generate_stat(betas)
-    gamma_stats = _generate_stat(gammas)
-    rho_stats = _generate_stat(rhos)
+    beta_stats = _compute_stat(betas)
+    gamma_stats = _compute_stat(gammas)
+    rho_stats = _compute_stat(rhos)
 
     return {
         'beta': beta_stats,
@@ -104,7 +96,7 @@ def generate_posterior_stats(betas, gammas, rhos):
     }
 
 
-def _generate_stat(data):
+def _compute_stat(data):
     """
     Helper function to generate mean, mode, and 95% CI for a given parameter data.
     """
@@ -153,7 +145,7 @@ def plot_distance_histogram(distances, epsilon, bins=50, color='black'):
     return fig
 
 
-def plot_accepted_params_pairwise(betas, gammas, rhos, point_color='black', diag_color='black'):
+def plot_pairwise(betas, gammas, rhos, point_color='black', diag_color='black'):
     """
     Plots pairwise scatter plots of accepted parameters with histograms on the diagonal.
     
@@ -188,3 +180,32 @@ def plot_accepted_params_pairwise(betas, gammas, rhos, point_color='black', diag
     g.figure.tight_layout()
     
     return g.figure
+
+if __name__ == "__main__":
+    # Load the simulated stats from the csv file
+    df = pd.read_csv("results/rejection_01/20260320_061434/abc_results.csv")
+
+    accepted_mask = df["accepted"] == 1
+    accepted_betas = df["beta"][accepted_mask]
+    accepted_gammas = df["gamma"][accepted_mask]
+    accepted_rhos = df["rho"][accepted_mask]
+
+    # Plot the accepted parameters
+    fig1 = plot_params_kde_and_ci(accepted_betas, accepted_gammas, accepted_rhos)
+    fig1.savefig("accepted_params_kde_ci.png")
+
+    # Generate posterior statistics
+    posterior_stats = generate_posterior_stats(accepted_betas, accepted_gammas, accepted_rhos)
+    print("Posterior Statistics:")
+    for param, stats in posterior_stats.items():
+        print(f"{param}: Mean={stats['mean']:.4f}, Mode={stats['kde_mode']:.4f}, 95% CI=({stats['ci_lower']:.4f}, {stats['ci_upper']:.4f})")
+    
+    # Plot pairwise scatter plots of accepted parameters
+    fig2 = plot_accepted_params_pairwise(accepted_betas, accepted_gammas, accepted_rhos)
+    fig2.savefig("accepted_params_pairwise.png")
+
+    # plot distance histogram
+    distances = df["distance"].values
+    epsilon = 0.5  # example epsilon value, adjust as needed
+    fig3 = plot_distance_histogram(distances, epsilon)
+    fig3.savefig("distance_histogram.png")

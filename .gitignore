@@ -1,2 +1,5 @@
+build/
+.venv/
+.venv_wsl/
 __pycache__/
 results/

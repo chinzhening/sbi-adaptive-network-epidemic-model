@@ -1,0 +1,28 @@
+[experiment]
+name = "rejection_02"
+
+[prior]
+beta_min  = 0.05
+beta_max  = 0.5
+gamma_min = 0.02
+gamma_max = 0.2
+rho_min   = 0.0
+rho_max   = 0.8
+
+[abc]
+n_simulations = 1000
+epsilon       = 1.0
+normalization = "equalize_mad"
+distance      = "euclidean"
+active_stats  = [
+    "auc_infected_fraction",
+    "initial_slope_infected_fraction",
+    "total_rewire_count",
+    "cumulative_infected_fraction_until_first_rewire"
+]
+
+[io]
+final_degree_histograms_path = "data/final_degree_histograms.csv"
+infected_timeseries_path     = "data/infected_timeseries.csv"
+rewiring_timeseries_path     = "data/rewiring_timeseries.csv"
+run_diagnostics              = true
