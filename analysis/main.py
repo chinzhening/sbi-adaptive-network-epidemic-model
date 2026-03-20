@@ -17,7 +17,7 @@ def main():
     Returns
     -------
     None
-    
+
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("--results", required=True)
@@ -36,7 +36,11 @@ def main():
     diagnostics["accepted_params_pairwise_plot"].savefig(output_dir / "pairwise.png")
     diagnostics["params_kde_and_ci"].savefig(output_dir / "kde_ci.png")
 
-    print(posterior_stats)
+    # dump posterior stats to a text file
+    with open(output_dir / "posterior_stats.txt", "w") as f:
+        f.write("Posterior Statistics:\n")
+        for param, stats in posterior_stats.items():
+            f.write(f"{param}: Mean={stats['mean']:.4f}, Mode={stats['kde_mode']:.4f}, 95% CI=({stats['ci_lower']:.4f}, {stats['ci_upper']:.4f})\n")
 
 if __name__ == "__main__":
     main()

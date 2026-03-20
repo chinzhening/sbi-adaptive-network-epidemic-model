@@ -41,4 +41,8 @@ struct Config {
     IOConfig         io;
 };
 
+Normalization parse_normalization(const std::string& s);
+DistanceFunction parse_distance(const std::string& s);
+StatIndex stat_id_from_string(const std::string& s);
+
 Config load_config(const std::string& path);

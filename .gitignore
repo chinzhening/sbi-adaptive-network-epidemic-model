@@ -3,3 +3,5 @@ build/
 .venv_wsl/
 __pycache__/
 results/
+notebooks/
+paper/figures/discriminatory_power/

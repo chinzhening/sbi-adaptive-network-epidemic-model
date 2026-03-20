@@ -21,5 +21,11 @@ void save_results(
     const std::filesystem::path&          output_dir
 );
 
+void save_simulation_results(
+    const std::vector<SummaryStatistics>& stats,
+    const std::vector<StatIndex>&         active_stats,
+    const std::filesystem::path&          output_dir
+);
+
 // Load observed data from CSV files specified in config
 std::vector<SimResult> load_observed_data(const IOConfig& io_cfg);

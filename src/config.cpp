@@ -1,22 +1,20 @@
 #include "config.hpp"
-#include "summary.hpp"
-#include "normalization.hpp"
 
 #include <toml++/toml.hpp>
 #include <stdexcept>
 
-static Normalization parse_normalization(const std::string& s) {
+Normalization parse_normalization(const std::string& s) {
     if (s == "equalize_variance") return Normalization::EQUALIZE_VARIANCE;
     if (s == "equalize_mad")      return Normalization::EQUALIZE_MAD;
     throw std::invalid_argument("Unknown normalization: " + s);
 }
 
-static DistanceFunction parse_distance(const std::string& s) {
+DistanceFunction parse_distance(const std::string& s) {
     if (s == "euclidean") return DistanceFunction::EUCLIDEAN;
     throw std::invalid_argument("Unknown distance: " + s);
 }
 
-static StatIndex stat_id_from_string(const std::string& s) {
+StatIndex stat_id_from_string(const std::string& s) {
     for (int i = 0; i < N_STATS; ++i) {
         if (s == STAT_NAMES[i]) {
             return static_cast<StatIndex>(i);

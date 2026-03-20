@@ -12,28 +12,31 @@ We investigate the performance of the basic ABC rejection algorithm, choosing of
 
 TODO: add more details about the advanced methods, e.g. ABC-SMC, ABC-MCMC, regression adjustment.
 
-# Repository Structure
-The repository is organized as follows:
-```
-├── data/                   # datasets used in the project
-├── report/                 # source files for the final report
-├── src/                    # source code for simulations and inference methods
-│   ├── abctools/           # implementation of ABC algorithms
-├── experiments/            # scripts to run experiments and generate results
-|   eda.ipynb               # exploratory data analysis notebook
-```
-
 # Getting Started
-To recreate the results in this project, clone the repo and follow these steps:
-1. Setup the project with `uv`:
-   ```
-   uv sync
-   ```
-2. Run the experiments as a python module:
-   ```
-   python -m experiments.rejection_01
-   ```
-3. Check the results in the `results/` directory.
+To recreate the results in this project, follow these steps:
+1. Clone the repository:
+```bash
+git clone www.github.com/chinzhening/sbi-adaptive-network-epidemic-model.git
+```
+2. Install the required dependencies. We recommend using a virtual environment:
+```bash
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows, use .venv\Scripts\activate
+pip install -r requirements.txt
+```
+3. Build the source code:
+```bash
+./build.sh
+```
+4. Run the ABC experiments:
+```bash
+./run.sh experiments/[experiment_name].toml
+```
+5. The results and diagnostics will be saved in the output directory specified in the configuration file.
+6. Run the modules in `analysis/scripts` to generate the figures and tables for the report.
+```bash
+python -m analysis.scripts.[script_name].py
+``` 
 
 # References
 - [The ABC's of ABC (Approximate Bayesian Computation)](https://www.youtube.com/watch?v=MsgdXDXXP_0)

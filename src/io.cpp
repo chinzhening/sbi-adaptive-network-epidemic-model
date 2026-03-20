@@ -112,3 +112,32 @@ std::vector<SimResult> load_observed_data(const IOConfig& io_cfg) {
 
     return results;
 }
+
+void save_simulation_results(
+    const std::vector<SummaryStatistics>& stats,
+    const std::vector<StatIndex>&         active_stats,
+    const std::filesystem::path&          output_dir
+) {
+    // summary statistics
+    auto stat_filepath = output_dir / "summary_stats.csv";
+    std::ofstream out(stat_filepath);
+    if (!out.is_open()) {
+        std::cerr << "Error opening file for writing: " << stat_filepath << "\n";
+        return;
+    }
+
+    // Write header
+    int k = active_stats.size();
+    for (int i = 0; i < k; ++i) {
+        out << STAT_NAMES[active_stats[i]];
+        if (i < k - 1) out << ",";
+    }
+    out << "\n";
+    for (int r = 0; r < (int)stats.size(); ++r) {
+        for (int i = 0; i < k; ++i) {
+            out << stats[r][active_stats[i]];
+            if (i < k - 1) out << ",";
+        }
+        out << "\n";
+    }
+}

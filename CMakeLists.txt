@@ -29,13 +29,24 @@ add_executable(abc_sampler
     src/distance.cpp
 )
 
-target_include_directories(abc_sampler PRIVATE include)
-
-target_compile_options(abc_sampler PRIVATE
-    -O3 -march=native -ffast-math -funroll-loops
+add_executable(simulate
+    src/simulate.cpp
+    src/config.cpp
+    src/simulator.cpp
+    src/summary.cpp
+    src/normalization.cpp
+    src/distance.cpp
+    src/io.cpp
 )
 
-target_link_libraries(abc_sampler PRIVATE
-    OpenMP::OpenMP_CXX
-    tomlplusplus::tomlplusplus
-)
+foreach(target abc_sampler simulate)
+    target_include_directories(${target} PRIVATE include)
+    target_compile_options(${target} PRIVATE
+        -O3 -march=native -ffast-math -funroll-loops
+    )
+    target_link_libraries(${target} PRIVATE
+        OpenMP::OpenMP_CXX
+        tomlplusplus::tomlplusplus
+    )    
+endforeach()
+

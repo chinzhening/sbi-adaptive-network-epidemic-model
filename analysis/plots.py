@@ -180,32 +180,3 @@ def plot_pairwise(betas, gammas, rhos, point_color='black', diag_color='black'):
     g.figure.tight_layout()
     
     return g.figure
-
-if __name__ == "__main__":
-    # Load the simulated stats from the csv file
-    df = pd.read_csv("results/rejection_01/20260320_061434/abc_results.csv")
-
-    accepted_mask = df["accepted"] == 1
-    accepted_betas = df["beta"][accepted_mask]
-    accepted_gammas = df["gamma"][accepted_mask]
-    accepted_rhos = df["rho"][accepted_mask]
-
-    # Plot the accepted parameters
-    fig1 = plot_params_kde_and_ci(accepted_betas, accepted_gammas, accepted_rhos)
-    fig1.savefig("accepted_params_kde_ci.png")
-
-    # Generate posterior statistics
-    posterior_stats = generate_posterior_stats(accepted_betas, accepted_gammas, accepted_rhos)
-    print("Posterior Statistics:")
-    for param, stats in posterior_stats.items():
-        print(f"{param}: Mean={stats['mean']:.4f}, Mode={stats['kde_mode']:.4f}, 95% CI=({stats['ci_lower']:.4f}, {stats['ci_upper']:.4f})")
-    
-    # Plot pairwise scatter plots of accepted parameters
-    fig2 = plot_accepted_params_pairwise(accepted_betas, accepted_gammas, accepted_rhos)
-    fig2.savefig("accepted_params_pairwise.png")
-
-    # plot distance histogram
-    distances = df["distance"].values
-    epsilon = 0.5  # example epsilon value, adjust as needed
-    fig3 = plot_distance_histogram(distances, epsilon)
-    fig3.savefig("distance_histogram.png")
