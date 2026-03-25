@@ -4,97 +4,91 @@
 
 #include "normalization.hpp"
 
-SummaryStatistics apply_scaling(
-    const SummaryStatistics& stats,
-    const std::vector<double>& normalization_factors,
-    const std::vector<StatIndex>& active_stats
+DenseStats apply_scaling(
+    const DenseStats& stats,
+    const std::vector<double>& norm_factors
 ) {
-    int n_stats = active_stats.size();
-    SummaryStatistics normalized_stats;
-    for (int j = 0; j < n_stats; ++j) {
-        normalized_stats[active_stats[j]] = stats[active_stats[j]] / normalization_factors[j];
+    DenseStats norm_stats(stats.size(), 0.0);
+    for (int idx = 0; idx < (int)stats.size(); ++idx) {
+        norm_stats[idx] = stats[idx] / norm_factors[idx];
     }
-    return normalized_stats;
+    return norm_stats;
 }
 
-std::vector<SummaryStatistics> apply_scaling(
-    const std::vector<SummaryStatistics>& stats_vec,
-    const std::vector<double>& normalization_factors,
-    const std::vector<StatIndex>& active_stats
+std::vector<DenseStats> apply_scaling(
+    const std::vector<DenseStats>& stats_vec,
+    const std::vector<double>& norm_factors
 ) {
-    std::vector<SummaryStatistics> normalized_stats_vec(stats_vec.size());
-    for (size_t i = 0; i < stats_vec.size(); ++i) {
-        normalized_stats_vec[i] = apply_scaling(stats_vec[i], normalization_factors, active_stats);
+    int n = stats_vec.size();
+    std::vector<DenseStats> norm_stats_vec(n);
+    for (size_t idx = 0; idx < n; ++idx) {
+        norm_stats_vec[idx] = apply_scaling(stats_vec[idx], norm_factors);
     }
-    return normalized_stats_vec;
+    return norm_stats_vec;
 }
 
 
 std::vector<double> compute_normalization_scale(
-    const std::vector<SummaryStatistics>& stats_vec,
+    const std::vector<DenseStats>& stats_vec,
     Normalization method,
-    const std::vector<StatIndex>& active_stats
+    int n_stats
 ) {
     switch (method) {
         case Normalization::NONE:
-            return std::vector<double>(active_stats.size(), 1.0);
+            return std::vector<double>(n_stats, 1.0);
         case Normalization::EQUALIZE_VARIANCE:
-            return compute_equalize_variance_scale(stats_vec, active_stats);
+            return compute_equalize_variance_scale(stats_vec, n_stats);
         case Normalization::EQUALIZE_MAD:
-            return compute_equalize_mad_scale(stats_vec, active_stats);
+            return compute_equalize_mad_scale(stats_vec, n_stats);
         default:
             throw std::invalid_argument("Unknown normalization method");
     }
 }
 
 std::vector<double> compute_equalize_variance_scale(
-    const std::vector<SummaryStatistics>& stats_vec,
-    const std::vector<StatIndex>& active_stats
+    const std::vector<DenseStats>& stats_vec,
+    int n_stats
 ) {
     int n_samples = stats_vec.size();
-    int n_stats = active_stats.size();
     std::vector<double> mu(n_stats, 0.0);
     std::vector<double> mu2(n_stats, 0.0);
-    for (const auto& stats : stats_vec) {
-        for (int i = 0; i < n_stats; ++i) {
-            mu[i] += stats[active_stats[i]];
-            mu2[i] += stats[active_stats[i]] * stats[active_stats[i]];
+    std::vector<double> sd(n_stats, 0.0);
+    for (const auto& s : stats_vec) {
+        for (int idx = 0; idx < n_samples; ++idx) {
+            mu[idx] += s[idx];
+            mu2[idx] += s[idx] * s[idx];
         }
     }
-    for (int i = 0; i < n_stats; ++i) {
-        mu[i] /= stats_vec.size();
-        mu2[i] /= stats_vec.size();
+    for (int idx = 0; idx < n_stats; ++idx) {
+        mu[idx] /= stats_vec.size();
+        mu2[idx] /= stats_vec.size();
+        sd[idx] = std::sqrt(mu2[idx] - mu[idx] * mu[idx]);
     }
-    std::vector<double> sds(n_stats, 0.0);
-    for (int i = 0; i < n_stats; ++i) {
-        sds[i] = std::sqrt(mu2[i] - mu[i] * mu[i]);
-    }
-    return sds;
+    return sd;
 }
 
 std::vector<double> compute_equalize_mad_scale(
-    const std::vector<SummaryStatistics>& stats_vec,
-    const std::vector<StatIndex>& active_stats
+    const std::vector<DenseStats>& stats_vec,
+    int n_stats
 ) {
     int n_samples = stats_vec.size();
-    int n_stats = active_stats.size();
     std::vector<double> medians(n_stats, 0.0);
-    for (int i = 0; i < n_stats; ++i) {
+    for (int idx = 0; idx < n_stats; ++idx) {
         std::vector<double> values_i(n_samples);
         for (int j = 0; j < n_samples; ++j) {
-            values_i[j] = stats_vec[j][active_stats[i]];
+            values_i[j] = stats_vec[j][idx];
         }
         std::nth_element(values_i.begin(), values_i.begin() + n_samples / 2, values_i.end());
-        medians[i] = values_i[n_samples / 2];
+        medians[idx] = values_i[n_samples / 2];
     }
     std::vector<double> mad(n_stats, 0.0);
-    for (int i = 0; i < n_stats; ++i) {
+    for (int idx = 0; idx < n_stats; ++idx) {
         std::vector<double> abs_devs(n_samples);
         for (int j = 0; j < n_samples; ++j) {
-            abs_devs[j] = std::abs(stats_vec[j][active_stats[i]] - medians[i]);
+            abs_devs[j] = std::abs(stats_vec[j][idx] - medians[idx]);
         }
         std::nth_element(abs_devs.begin(), abs_devs.begin() + n_samples / 2, abs_devs.end());
-        mad[i] = abs_devs[n_samples / 2];
+        mad[idx] = abs_devs[n_samples / 2];
     }
     return mad;
 }

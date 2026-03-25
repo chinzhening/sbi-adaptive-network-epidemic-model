@@ -53,19 +53,6 @@ static const std::array<std::string, N_STATS> STAT_NAMES = {
     "cumulative_infected_fraction_until_first_rewire"
 };
 
-// Struct to hold all summary statistics for a single simulation result
-struct SummaryStatistics {
-    std::array<double, N_STATS> values{};
-    double& operator[](int i)       { return values[i]; }
-    double  operator[](int i) const { return values[i]; }
-};
-
-// Entry point for computing all summary statistics from a SimResult
-SummaryStatistics compute_summary_statistics(const SimResult& result, const std::vector<StatIndex> &active_stats);
-SummaryStatistics aggregate_summary_statistics(const std::vector<SummaryStatistics>& stats_vec, const std::vector<StatIndex> &active_stats);
-
-std::vector<SummaryStatistics> compute_summary_statistics(const std::vector<SimResult>& results, const std::vector<StatIndex> &active_stats);
-
 using StatFn = double(*)(const SimResult&);
 
 static const std::array<StatFn, N_STATS> ALL_STAT_FNS = {
@@ -81,3 +68,27 @@ static const std::array<StatFn, N_STATS> ALL_STAT_FNS = {
     lag_peak,
     cumulative_infected_fraction_until_first_rewire
 };
+
+/** 
+ * Established once from config. Passed by const-ref to every pipeline function.
+ */
+struct StatLayout {
+    std::vector<StatIndex> active;
+    int size() const { return static_cast<int>(active.size()); }
+};
+
+// Type alias for a vector of summary statistics values, used for output formatting
+using DenseStats = std::vector<double>;
+
+DenseStats compute_summary_statistics(
+    const SimResult& result,
+    const StatLayout& layout);
+
+std::vector<DenseStats> compute_summary_statistics(
+    const std::vector<SimResult>& results,
+    const StatLayout& layout);
+
+
+DenseStats aggregate_summary_statistics(
+    const std::vector<DenseStats>& stats_vec,
+    const StatLayout& layout);

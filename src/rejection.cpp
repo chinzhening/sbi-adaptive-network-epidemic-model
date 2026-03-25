@@ -8,7 +8,7 @@
 #include "summary.hpp"
 
 
-ABCResult run_abc_rejection(const Config& cfg, const SummaryStatistics& s_obs) {
+ABCResult run_abc_rejection(const Config& cfg, const DenseStats& s_obs, const StatLayout& layout) {
     ABCResult result;
 
     std::mt19937 rng(42); // fixed seed for reproducibility
@@ -32,7 +32,7 @@ ABCResult run_abc_rejection(const Config& cfg, const SummaryStatistics& s_obs) {
     }
 
     // store the stats for all samples in a vector of SummaryStatistics
-    std::vector<SummaryStatistics> s_sim(n_samples);
+    std::vector<DenseStats> s_sim(n_samples);
 
     double start = omp_get_wtime();
     #pragma omp parallel for
@@ -41,16 +41,16 @@ ABCResult run_abc_rejection(const Config& cfg, const SummaryStatistics& s_obs) {
             beta[i],
             gamma[i],
             rho[i],
-            cfg.abc.active_stats
+            layout
         );
     }
     double end = omp_get_wtime();
     result.runtime_seconds = end - start;
 
     // normalize
-    std::vector<double> norm_scale = compute_normalization_scale(s_sim, cfg.abc.normalization, cfg.abc.active_stats);
-    std::vector<SummaryStatistics> s_sim_norm = apply_scaling(s_sim, norm_scale, cfg.abc.active_stats);
-    SummaryStatistics s_obs_norm = apply_scaling(s_obs, norm_scale, cfg.abc.active_stats);
+    std::vector<double> norm_scale = compute_normalization_scale(s_sim, cfg.abc.normalization, layout.size());
+    std::vector<DenseStats> s_sim_norm = apply_scaling(s_sim, norm_scale);
+    DenseStats s_obs_norm = apply_scaling(s_obs, norm_scale);
 
     // compute distances
     std::vector<double> distances(n_samples);

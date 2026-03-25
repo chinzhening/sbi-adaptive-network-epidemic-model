@@ -26,8 +26,8 @@ void save_results(
     const std::vector<double>&            beta,
     const std::vector<double>&            gamma,
     const std::vector<double>&            rho,
-    const std::vector<SummaryStatistics>& stats,
-    const std::vector<StatIndex>&         active_stats,
+    const std::vector<DenseStats>&        stats,
+    const StatLayout&                     layout,
     const std::vector<double>&            distances,
     const std::vector<bool>&              accepted,
     const std::filesystem::path&          output_dir
@@ -40,17 +40,17 @@ void save_results(
     }
 
     // Headers
-    for (size_t i = 0; i < active_stats.size(); ++i) {
-        file << STAT_NAMES[active_stats[i]];
-        if (i < active_stats.size() - 1) file << ",";
+    for (size_t i = 0; i < layout.size(); ++i) {
+        file << STAT_NAMES[layout.active[i]];
+        if (i < layout.size() - 1) file << ",";
     }
     file << ",beta,gamma,rho,distance,accepted\n";
 
     // Data
     for (size_t i = 0; i < stats.size(); ++i) {
-        for (size_t j = 0; j < active_stats.size(); ++j) {
-            file << stats[i][active_stats[j]];
-            if (j < active_stats.size() - 1) file << ",";
+        for (size_t j = 0; j < layout.size(); ++j) {
+            file << stats[i][j];
+            if (j < layout.size() - 1) file << ",";
         }
         file << ","  << beta[i]
              << ","  << gamma[i]
@@ -114,8 +114,8 @@ std::vector<SimResult> load_observed_data(const IOConfig& io_cfg) {
 }
 
 void save_simulation_results(
-    const std::vector<SummaryStatistics>& stats,
-    const std::vector<StatIndex>&         active_stats,
+    const std::vector<DenseStats>&        stats,
+    const StatLayout&                     layout,
     const std::filesystem::path&          output_dir
 ) {
     // summary statistics
@@ -127,15 +127,15 @@ void save_simulation_results(
     }
 
     // Write header
-    int k = active_stats.size();
+    int k = layout.size();
     for (int i = 0; i < k; ++i) {
-        out << STAT_NAMES[active_stats[i]];
+        out << STAT_NAMES[layout.active[i]];
         if (i < k - 1) out << ",";
     }
     out << "\n";
     for (int r = 0; r < (int)stats.size(); ++r) {
         for (int i = 0; i < k; ++i) {
-            out << stats[r][active_stats[i]];
+            out << stats[r][i];
             if (i < k - 1) out << ",";
         }
         out << "\n";

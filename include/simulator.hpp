@@ -26,9 +26,9 @@ SimResult simulate_one(
     int seed
 );
 
-SummaryStatistics simulate_and_summarize(
+DenseStats simulate_and_summarize(
     double beta,
     double gamma,
     double rho,
-    const std::vector<StatIndex>& active_stats
+    const StatLayout& layout
 );

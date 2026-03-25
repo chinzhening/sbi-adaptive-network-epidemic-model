@@ -221,16 +221,16 @@ SimResult simulate_one(
 }
 
 
-SummaryStatistics simulate_and_summarize(
+DenseStats simulate_and_summarize(
     double beta,
     double gamma,
     double rho,
-    const std::vector<StatIndex>& active_stats
+    const StatLayout& layout
 ) {
-    std::vector<SummaryStatistics> all_stats(SIM_N_REPLICATES);
+    std::vector<DenseStats> all_stats(SIM_N_REPLICATES);
     for (int j = 0; j < SIM_N_REPLICATES; ++j) {
         SimResult result = simulate_one(beta, gamma, rho, -1);
-        all_stats[j] = compute_summary_statistics(result, active_stats);
+        all_stats[j] = compute_summary_statistics(result, layout);
     }
-    return aggregate_summary_statistics(all_stats, active_stats);
+    return aggregate_summary_statistics(all_stats, layout);
 }

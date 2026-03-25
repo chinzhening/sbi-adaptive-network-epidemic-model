@@ -19,12 +19,15 @@ int main(int argc, char* argv[]) {
     // load observed data
     auto data_obs = load_observed_data(cfg.io);
 
+    // Create StatLayout for active summary statistics
+    StatLayout layout = StatLayout { cfg.abc.active_stats };
+
     // compute observed summary statistics
-    auto s_obs_vec = compute_summary_statistics(data_obs, cfg.abc.active_stats);
-    auto s_obs = aggregate_summary_statistics(s_obs_vec, cfg.abc.active_stats);
+    auto s_obs_vec = compute_summary_statistics(data_obs, layout);
+    auto s_obs = aggregate_summary_statistics(s_obs_vec, layout);
 
     // run ABC rejection sampling
-    ABCResult result = run_abc_rejection(cfg, s_obs);
+    ABCResult result = run_abc_rejection(cfg, s_obs, layout);
 
     std::cout << "Acceptance rate: " << result.acceptance_rate * 100.0 << "%" << std::endl;
     std::cout << "Elapsed time: " << result.runtime_seconds << " s" << std::endl;
@@ -36,7 +39,7 @@ int main(int argc, char* argv[]) {
         result.gamma,
         result.rho,
         result.stats,
-        cfg.abc.active_stats,
+        layout,
         result.distances,
         result.accepted,
         output_dir

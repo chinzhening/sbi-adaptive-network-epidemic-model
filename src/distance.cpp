@@ -2,7 +2,7 @@
 #include <cmath>
 #include <stdexcept>
 
-double compute_distance(const SummaryStatistics& stats1, const SummaryStatistics& stats2, DistanceFunction method) {
+double compute_distance(const DenseStats& stats1, const DenseStats& stats2, DistanceFunction method) {
     switch (method) {
         case DistanceFunction::EUCLIDEAN:
             return euclidean_distance(stats1, stats2);
@@ -11,9 +11,9 @@ double compute_distance(const SummaryStatistics& stats1, const SummaryStatistics
     }
 }
 
-double euclidean_distance(const SummaryStatistics& stats1, const SummaryStatistics& stats2) {
+double euclidean_distance(const DenseStats& stats1, const DenseStats& stats2) {
     double sum_sq = 0.0;
-    for (int i = 0; i < N_STATS; ++i) {
+    for (int i = 0; i < (int)stats1.size(); ++i) {
         double diff = stats1[i] - stats2[i];
         sum_sq += diff * diff;
     }

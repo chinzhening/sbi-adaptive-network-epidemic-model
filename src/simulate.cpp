@@ -47,24 +47,27 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-std::vector<StatIndex> active_stats;
-for (const auto& name : stat_names)
-    active_stats.push_back(stat_id_from_string(name));
+    std::vector<StatIndex> active_stats;
+    for (const auto& name : stat_names)
+        active_stats.push_back(stat_id_from_string(name));
+
+
+    StatLayout layout = StatLayout { active_stats };
 
     // create output directory if it doesn't exist
     std::filesystem::path out = std::filesystem::path(output_dir);
     std::filesystem::create_directories(out);
 
-    std::vector<SummaryStatistics> s_sim(n_sim);
+    std::vector<DenseStats> s_sim(n_sim);
     
     // run ensemble
     #pragma omp parallel for
     for (int i = 0; i < n_sim; ++i) {
-        s_sim[i] = simulate_and_summarize(beta, gamma, rho, active_stats);
+        s_sim[i] = simulate_and_summarize(beta, gamma, rho, layout);
     }
 
     // save results
-    save_simulation_results(s_sim, active_stats, out);
+    save_simulation_results(s_sim, layout, out);
 
     std::cout << "Output directory: " << out << "\n";
     return 0;

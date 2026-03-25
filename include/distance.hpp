@@ -6,5 +6,5 @@ enum class DistanceFunction {
     EUCLIDEAN,
 };
 
-double compute_distance(const SummaryStatistics& stats1, const SummaryStatistics& stats2, DistanceFunction method);
-double euclidean_distance(const SummaryStatistics& stats1, const SummaryStatistics& stats2);
+double compute_distance(const DenseStats& stats1, const DenseStats& stats2, DistanceFunction method);
+double euclidean_distance(const DenseStats& stats1, const DenseStats& stats2);

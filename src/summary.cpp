@@ -2,34 +2,33 @@
 
 #include <cmath>
 
-SummaryStatistics compute_summary_statistics(const SimResult& result, const std::vector<StatIndex>& active_stats) {
-    SummaryStatistics stats;
-    for (StatIndex idx : active_stats) {
-        stats[idx] = ALL_STAT_FNS[idx](result);
+DenseStats compute_summary_statistics(const SimResult& result, const StatLayout& layout) {
+    DenseStats stats(layout.size());
+    for (int idx = 0; idx < layout.size(); ++idx) {
+        stats[idx] = ALL_STAT_FNS[layout.active[idx]](result);
     }
     return stats;
 }
 
-std::vector<SummaryStatistics> compute_summary_statistics(const std::vector<SimResult>& results, const std::vector<StatIndex>& active_stats) {
+std::vector<DenseStats> compute_summary_statistics(const std::vector<SimResult>& results, const StatLayout& layout) {
     int n = results.size();
-    std::vector<SummaryStatistics> stats_vec(n);
-    for (int i = 0; i < n; ++i) {
-        stats_vec[i] = compute_summary_statistics(results[i], active_stats);
+    std::vector<DenseStats> stats_vec(n);
+    for (int idx = 0; idx < n; ++idx) {
+        stats_vec[idx] = compute_summary_statistics(results[idx], layout);
     }
     return stats_vec;
 }
 
-SummaryStatistics aggregate_summary_statistics(const std::vector<SummaryStatistics>& stats_vec, const std::vector<StatIndex>& active_stats) {
-    SummaryStatistics aggregated;
-    size_t n = stats_vec.size();
-    for (StatIndex idx : active_stats) {
-        double sum = 0.0;
-        for (const SummaryStatistics& stats : stats_vec) {
-            sum += stats[idx];
-        }
-        aggregated[idx] = sum / static_cast<double>(n);
-    }
-    return aggregated;
+DenseStats aggregate_summary_statistics(
+    const std::vector<DenseStats>& stats_vec,
+    const StatLayout& layout
+) {
+    DenseStats agg(layout.size(), 0.0);
+    for (const auto&s : stats_vec)
+        for (int idx = 0; idx < layout.size(); ++idx) 
+            agg[idx] += s[idx];
+    for (auto& v: agg) v /= static_cast<double>(stats_vec.size());
+    return agg;
 }
 
 inline double peak_infected_fraction(const SimResult& result) {
