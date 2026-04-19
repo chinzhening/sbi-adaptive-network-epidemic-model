@@ -103,13 +103,13 @@ Posterior predictive checks were performed by simulating data from the accepted 
 The posterior predictive distributions of the summary statistics capture the observed
 values well, but the variability across simulations is large.
 
-// #figure(
-//   caption: [Posterior predictive check comparing observed summary statistics to those from simulations using accepted parameters from rejection ABC with $epsilon = 0.001$],
-// )[
-//   #image(
-//     "figures/preliminary/base_ppc.png",
-//     alt: "Posterior predictive check comparing observed summary statistics to those from simulations using accepted parameters from rejection ABC with $epsilon = 0.01$",
-//   )
-// ] <preliminary:base_ppc>
+#figure(
+  caption: [Posterior predictive check comparing observed summary statistics to those from simulations using accepted parameters from rejection ABC with $epsilon = 0.01$],
+)[
+  #image(
+    "figures/preliminary/posterior_predictive_check.png",
+    alt: "Posterior predictive check comparing observed summary statistics to those from simulations using accepted parameters from rejection ABC with $epsilon = 0.01$",
+  )
+] <preliminary:base_ppc>
 
 #pagebreak()

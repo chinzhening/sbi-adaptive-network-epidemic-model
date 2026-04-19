@@ -307,7 +307,7 @@ structural statement about sufficiency.
 #figure(
   caption: [Feature importance scores from the fitted random forest models used for summary statistic construction. The most influential statistics for each parameter are highlighted.],
 )[
-  #let a = rgb("#cf2406")
+  #let a = rgb("#cd4d36")
   #let cols = 4
 
   #let is-floatable(x) = (
@@ -318,28 +318,28 @@ structural statement about sufficiency.
   #let tbl-content = (
     [Summary statistic], [$beta$], [$gamma$], [$rho$],
 
-    [`mean:auc_infected_fraction`],         [0.000971], [0.782088], [0.000713],
-    [`sd:auc_infected_fraction`],           [0.000784], [0.119448], [0.000257],
-    [`mean:peak_infected_fraction`],        [0.000415], [0.008917], [0.000790],
-    [`sd:peak_infected_fraction`],          [0.000449], [0.009251], [0.000251],
-    [`mean:time_to_peak_infected_fraction`],[0.000380], [0.000675], [0.010183],
-    [`sd:time_to_peak_infected_fraction`],  [0.000304], [0.000443], [0.000380],
-    [`mean:initial_growth_ratio`],          [0.990066], [0.001505], [0.025429],
-    [`sd:initial_growth_ratio`],            [0.000656], [0.003094], [0.000350],
-    [`mean:peak_rewire_count`],             [0.000295], [0.000369], [0.159044],
-    [`sd:peak_rewire_count`],               [0.000289], [0.000530], [0.009788],
-    [`mean:time_to_peak_rewire_count`],     [0.000192], [0.039617], [0.024164],
-    [`sd:time_to_peak_rewire_count`],       [0.000334], [0.000528], [0.000433],
-    [`mean:total_rewire_count`],            [0.000148], [0.006622], [0.001383],
-    [`sd:total_rewire_count`],              [0.000185], [0.006886], [0.000797],
-    [`mean:mean_degree`],                   [0.000718], [0.000432], [0.000147],
-    [`sd:mean_degree`],                     [0.000586], [0.000442], [0.000135],
-    [`mean:sd_degree`],                     [0.000255], [0.000791], [0.735150],
-    [`sd:sd_degree`],                       [0.000447], [0.003894], [0.000846],
-    [`mean:rewire_to_infection_ratio`],     [0.000200], [0.009692], [0.002091],
-    [`sd:rewire_to_infection_ratio`],       [0.000196], [0.000928], [0.000506],
-    [`mean:lag_peak`],                      [0.001677], [0.003284], [0.026858],
-    [`sd:lag_peak`],                        [0.000453], [0.000564], [0.000304],
+    [`mean:auc_infected_fraction`],         [0.0010], [0.7821], [0.0007],
+    [`sd:auc_infected_fraction`],           [0.0008], [0.1194], [0.0003],
+    [`mean:peak_infected_fraction`],        [0.0004], [0.0090], [0.0008],
+    [`sd:peak_infected_fraction`],          [0.0004], [0.0093], [0.0003],
+    [`mean:time_to_peak_infected_fraction`],[0.0004], [0.0007], [0.0102],
+    [`sd:time_to_peak_infected_fraction`],  [0.0003], [0.0004], [0.0004],
+    [`mean:initial_growth_ratio`],          [0.9901], [0.0015], [0.0254],
+    [`sd:initial_growth_ratio`],            [0.0007], [0.0031], [0.0004],
+    [`mean:peak_rewire_count`],             [0.0003], [0.0004], [0.1590],
+    [`sd:peak_rewire_count`],               [0.0003], [0.0005], [0.0098],
+    [`mean:time_to_peak_rewire_count`],     [0.0002], [0.0396], [0.0242],
+    [`sd:time_to_peak_rewire_count`],       [0.0003], [0.0005], [0.0004],
+    [`mean:total_rewire_count`],            [0.0001], [0.0066], [0.0014],
+    [`sd:total_rewire_count`],              [0.0002], [0.0069], [0.0008],
+    [`mean:mean_degree`],                   [0.0007], [0.0004], [0.0001],
+    [`sd:mean_degree`],                     [0.0006], [0.0004], [0.0001],
+    [`mean:sd_degree`],                     [0.0003], [0.0008], [0.7352],
+    [`sd:sd_degree`],                       [0.0004], [0.0039], [0.0008],
+    [`mean:rewire_to_infection_ratio`],     [0.0002], [0.0097], [0.0021],
+    [`sd:rewire_to_infection_ratio`],       [0.0002], [0.0009], [0.0005],
+    [`mean:lag_peak`],                      [0.0017], [0.0033], [0.0269],
+    [`sd:lag_peak`],                        [0.0005], [0.0006], [0.0003],
   ).map(
     content => {
       let text = repr(content).slice(1, -1)

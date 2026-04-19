@@ -88,7 +88,7 @@ statistic as a complementary coverage measure.
 )[
   #image(
     "figures/advanced/sbc_rank_plot_hist.png",
-    width: 80%,
+    width: 85%,
   )
 ] <fig:sbc_hist>
 
