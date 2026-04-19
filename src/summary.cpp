@@ -77,10 +77,6 @@ inline double auc_infected_fraction(const SimResult& result) {
     return auc;
 }
 
-inline double final_infected_fraction(const SimResult& result) {
-    return result.infected_fraction[SIM_T];
-}
-
 inline double initial_growth_ratio(const SimResult& result) {
     return result.infected_fraction[1] / result.infected_fraction[0];
 }

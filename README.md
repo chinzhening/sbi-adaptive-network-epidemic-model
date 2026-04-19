@@ -1,42 +1,98 @@
-# Simulation Based Inference For An Adpative Network Epidemic Model
-This repository contains the code for the [final project](https://alexxthiery.github.io/teaching/SBI_infection/SBI-infection.html) of the course "ST3247 Simulation",
-read under Prof. Alex Thiery in AY2025/2026 Semester 2.
+# Simulation-Based Inference for an Adaptive-Network Epidemic Model
 
-# Overview
-Statistical inference in situations where the likelihood function is intractable is a common problem in many scientific domains.
-Simulation-based inference (SBI) methods, such as [Approximate Bayesian Computation](https://en.wikipedia.org/wiki/Approximate_Bayesian_computation) (ABC), have been developed to address this issue.
-In this project, we apply SBI methods to an adaptive network epidemic model, which captures the dynamics of disease spread while allowing for changes in the contact network structure.
+> Reproduction code for *Simulation-Based Inference For An Adaptive-Network Epidemic Model* (ST3247, NUS, 2026).
 
-In general, there is no guarantee that SBI methods are able to recover the true parameters of the model.
-We investigate the performance of the basic ABC rejection algorithm, choosing of the summary statistics, distance function, and tolerance. We compare the results with more sophisticated methods such as:
+Approximate Bayesian Computation (ABC) and Neural Posterior Estimation (NPE) are applied to infer the infection rate β, recovery rate γ, and rewiring rate ρ of an adaptive-network SIR model from partially observed epidemic realisations.
 
-TODO: add more details about the advanced methods, e.g. ABC-SMC, ABC-MCMC, regression adjustment.
+---
 
-# Getting Started
-To recreate the results in this project, follow these steps:
-1. Clone the repository:
-```bash
-git clone www.github.com/chinzhening/sbi-adaptive-network-epidemic-model.git
+## Repository structure
+
 ```
-2. Install the required dependencies. We recommend using a virtual environment:
-```bash
-python3 -m venv .venv
-source .venv/bin/activate  # On Windows, use .venv\Scripts\activate
-pip install -r requirements.txt
+.
+├── src/                    # C++ simulator source
+├── include/                # C++ headers
+├── experiments/            # Simulator config files (.toml)
+├── analysis/               # Python analysis notebooks
+│   ├── 01_preliminary.ipynb   # §2 Basic rejection ABC
+│   ├── 02_summary.ipynb       # §3 Summary statistics design
+│   └── 03_advanced.ipynb      # §4 NPE (APT-MAF)
+├── data/
+│   ├── raw/                # Observed time series and degree histograms
+│   └── sim/                # Reference table and test set (gitignored)
+├── results/                # Output figures, posteriors, and CSVs
+├── paper/                  # Typst source for the report
+├── docs/                   # Documentation
+├── CMakeLists.txt
+├── build.sh                # C++ build script
+├── run.sh                  # Simulation run script
+├── pyproject.toml
+└── requirements.txt
 ```
-3. Build the source code:
+
+---
+
+## Quickstart
+
+### 1. Build the C++ simulator
+
 ```bash
 ./build.sh
 ```
-4. Run the ABC experiments:
-```bash
-./run.sh experiments/[experiment_name].toml
-```
-5. The results and diagnostics will be saved in the output directory specified in the configuration file.
-6. Run the modules in `analysis/scripts` to generate the figures and tables for the report.
-```bash
-python -m analysis.scripts.[script_name].py
-``` 
 
-# References
-- [The ABC's of ABC (Approximate Bayesian Computation)](https://www.youtube.com/watch?v=MsgdXDXXP_0)
+Requires a C++17 compiler (GCC ≥ 11 or Clang ≥ 14) and CMake ≥ 3.20.
+
+### 2. Generate simulations
+
+```bash
+# Reference table (N = 10^5, ~25 min on a modern CPU)
+./run.sh experiments/reference_table.toml
+
+# Test set for calibration
+./run.sh experiments/test_set.toml
+```
+
+Output CSVs are written to `results/` with a timestamped subdirectory. Copy the relevant files to `data/sim/` before running the notebooks.
+
+### 3. Install Python dependencies
+
+```bash
+pip install .
+# or, if using uv:
+uv sync
+```
+
+### 4. Run the analysis notebooks
+
+Run in order:
+
+```bash
+jupyter lab analysis/
+```
+
+| Notebook | Report section | Key outputs |
+|---|---|---|
+| `preliminary.ipynb` | §2 Basic rejection ABC | `results/preliminary/` |
+| `summary.ipynb` | §3 Summary statistics | `results/summary/` |
+| `advanced.ipynb` | §4 NPE | `results/advanced/` |
+
+---
+
+## Requirements
+
+- Python ≥ 3.10
+- C++17 compiler
+- CMake ≥ 3.20
+- GPU recommended for NPE training (CPU fallback works but is slow)
+- See `requirements.txt` for Python packages
+
+---
+
+## Docs
+
+| File | Contents |
+|---|---|
+| `docs/simulator.md` | Config file format, CLI flags, parallelism, output schema |
+| `docs/data.md` | Reference table and test set schema; how to download precomputed files |
+| `docs/reproduce.md` | Exact steps to reproduce every figure and table in the report |
+

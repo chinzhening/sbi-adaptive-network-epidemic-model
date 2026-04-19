@@ -7,7 +7,6 @@
 inline double peak_infected_fraction(const SimResult& result);
 inline double time_to_peak_infected_fraction(const SimResult& result);
 inline double auc_infected_fraction(const SimResult& result);
-inline double final_infected_fraction(const SimResult& result);
 inline double initial_growth_ratio(const SimResult& result);
 
 // Rewire count based summaries
@@ -29,15 +28,14 @@ enum StatIndex : int {
     PEAK_INFECTED_FRACTION                = 0,
     TIME_TO_PEAK_INFECTED_FRACTION        = 1,
     AUC_INFECTED_FRACTION                 = 2,
-    FINAL_INFECTED_FRACTION               = 3,
-    INITIAL_GROWTH_RATIO                  = 4,
-    TOTAL_REWIRE_COUNT                    = 5,
-    PEAK_REWIRE_COUNT                     = 6,
-    TIME_TO_PEAK_REWIRE_COUNT             = 7,
-    MEAN_DEGREE                           = 8,
-    SD_DEGREE                             = 9,
-    LAG_PEAK                              = 10,
-    REWIRE_TO_INFECTION_RATIO             = 11,
+    INITIAL_GROWTH_RATIO                  = 3,
+    TOTAL_REWIRE_COUNT                    = 4,
+    PEAK_REWIRE_COUNT                     = 5,
+    TIME_TO_PEAK_REWIRE_COUNT             = 6,
+    MEAN_DEGREE                           = 7,
+    SD_DEGREE                             = 8,
+    LAG_PEAK                              = 9,
+    REWIRE_TO_INFECTION_RATIO             = 10,
     N_STATS                             // sentinel — always last
 };
 
@@ -45,7 +43,6 @@ static const std::array<std::string, N_STATS> STAT_NAMES = {
     "peak_infected_fraction",
     "time_to_peak_infected_fraction",
     "auc_infected_fraction",
-    "final_infected_fraction",
     "initial_growth_ratio",
     "total_rewire_count",
     "peak_rewire_count",
@@ -62,7 +59,6 @@ static const std::array<StatFn, N_STATS> ALL_STAT_FNS = {
     peak_infected_fraction,
     time_to_peak_infected_fraction,
     auc_infected_fraction,
-    final_infected_fraction,
     initial_growth_ratio,
     total_rewire_count,
     peak_rewire_count,
