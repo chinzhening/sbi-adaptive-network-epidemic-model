@@ -24,7 +24,8 @@ void save_results(
 void save_simulation_results(
     const std::vector<DenseStats>&        stats,
     const StatLayout&                     layout,
-    const std::filesystem::path&          output_dir
+    const std::filesystem::path&          output_dir,
+    const std::string                     filename
 );
 
 // Load observed data from CSV files specified in config

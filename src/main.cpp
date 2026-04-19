@@ -25,6 +25,12 @@ int main(int argc, char* argv[]) {
     // compute observed summary statistics
     auto s_obs_vec = compute_summary_statistics(data_obs, layout);
     auto s_obs = aggregate_summary_statistics(s_obs_vec, layout);
+    save_simulation_results(
+        {s_obs},
+        layout,
+        output_dir,
+        "observed_stats_raw.csv"
+    );
 
     // run ABC rejection sampling
     ABCResult result = run_abc_rejection(cfg, s_obs, layout);

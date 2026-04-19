@@ -22,6 +22,8 @@ struct PriorConfig {
 struct ABCConfig {
     int n_simulations = 10000;
     double epsilon    = 1.0;
+    double acceptance_rate = 0.01;
+    bool use_epsilon = true;
     Normalization normalization = Normalization::EQUALIZE_VARIANCE;
     DistanceFunction distance = DistanceFunction::EUCLIDEAN;
     std::vector<StatIndex> active_stats;
@@ -31,7 +33,6 @@ struct IOConfig {
     std::string final_degree_histograms_path = "data/final_degree_histograms.csv";
     std::string infected_timeseries_path     = "data/infected_timeseries.csv";
     std::string rewiring_timeseries_path     = "data/rewiring_timeseries.csv";
-    bool run_diagnostics                     = true;
 };
 
 struct Config {

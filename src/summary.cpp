@@ -23,11 +23,28 @@ DenseStats aggregate_summary_statistics(
     const std::vector<DenseStats>& stats_vec,
     const StatLayout& layout
 ) {
-    DenseStats agg(layout.size(), 0.0);
-    for (const auto&s : stats_vec)
-        for (int idx = 0; idx < layout.size(); ++idx) 
-            agg[idx] += s[idx];
-    for (auto& v: agg) v /= static_cast<double>(stats_vec.size());
+    const std::size_t n = layout.size();
+    const std::size_t m = stats_vec.size();
+
+    DenseStats agg(2 * n, 0.0);
+    DenseStats mean(n, 0.0);
+    DenseStats mean2(n, 0.0);
+
+    for (const auto& s : stats_vec) {
+        for (std::size_t i = 0; i < n; ++i) {
+            mean[i]  += s[i];
+            mean2[i] += s[i] * s[i];
+        }
+    }
+
+    for (std::size_t i = 0; i < n; ++i) {
+        const double mu = mean[i] / m;
+        const double ex2 = mean2[i] / m;
+
+        agg[i] = mu;
+        agg[n + i] = std::sqrt(ex2 - mu * mu);
+    }
+
     return agg;
 }
 
@@ -60,16 +77,12 @@ inline double auc_infected_fraction(const SimResult& result) {
     return auc;
 }
 
-inline double initial_slope_infected_fraction(const SimResult& result) {
-    // Average slope over the first few time steps to get a more stable estimate.
-    int n_slopes = 5;
+inline double final_infected_fraction(const SimResult& result) {
+    return result.infected_fraction[SIM_T];
+}
 
-    double slope_sum = 0.0;
-    for (size_t t = 0; t < n_slopes; ++t) {
-        slope_sum += result.infected_fraction[t + 1] - result.infected_fraction[t];
-    }
-    double avg_slope = slope_sum / static_cast<double>(n_slopes);
-    return avg_slope;
+inline double initial_growth_ratio(const SimResult& result) {
+    return result.infected_fraction[1] / result.infected_fraction[0];
 }
 
 inline double total_rewire_count(const SimResult& result) {
@@ -132,22 +145,23 @@ inline double sd_degree(const SimResult& result) {
     return std::sqrt(variance);
 }
 
-inline double cumulative_infected_fraction_until_first_rewire(const SimResult& result) {
-    int first_rewire_time = -1;
+inline double rewire_to_infection_ratio(const SimResult& result) {
+    // --- Total rewiring ---
+    double total_rewire = 0.0;
+    double total_infections = 0.0;
     for (size_t t = 0; t < SIM_T + 1; ++t) {
-        if (result.rewire_counts[t] > 0) {
-            first_rewire_time = static_cast<int>(t);
-            break;
+        total_rewire += result.rewire_counts[t];
+        
+        double delta = result.infected_fraction[t + 1] - result.infected_fraction[t];
+        if (delta > 0.0) {
+            total_infections += delta;
         }
     }
-    if (first_rewire_time == -1) {
-        return -1.0;
+
+    // --- Avoid division by zero ---
+    if (total_infections <= 1e-12) {
+        return 0.0; 
     }
 
-    double cumulative = 0.0;
-    for (size_t t = 0; t <= static_cast<size_t>(first_rewire_time); ++t) {
-        cumulative += result.infected_fraction[t];
-    }
-    return cumulative;
-
+    return total_rewire / total_infections;
 }

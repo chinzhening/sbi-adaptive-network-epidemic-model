@@ -1,0 +1,37 @@
+[experiment]
+name = "reference_table"
+
+[prior]
+beta_min  = 0.05
+beta_max  = 0.5
+gamma_min = 0.02
+gamma_max = 0.2
+rho_min   = 0.0
+rho_max   = 0.8
+
+[abc]
+n_simulations = 100000
+acceptance_rate = 0.01
+normalization = "None"
+distance      = "euclidean"
+active_stats  = [
+    "auc_infected_fraction",
+    "peak_infected_fraction",
+    "time_to_peak_infected_fraction",
+    "initial_growth_ratio",
+
+    "peak_rewire_count",
+    "time_to_peak_rewire_count",
+    "total_rewire_count",
+    
+    "mean_degree",
+    "sd_degree",
+    
+    "rewire_to_infection_ratio",
+    "lag_peak",
+]
+
+[io]
+final_degree_histograms_path = "data/raw/final_degree_histograms.csv"
+infected_timeseries_path     = "data/raw/infected_timeseries.csv"
+rewiring_timeseries_path     = "data/raw/rewiring_timeseries.csv"

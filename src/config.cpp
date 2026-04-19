@@ -3,9 +3,12 @@
 #include <toml++/toml.hpp>
 #include <stdexcept>
 
+#include <iostream>
+
 Normalization parse_normalization(const std::string& s) {
     if (s == "equalize_variance") return Normalization::EQUALIZE_VARIANCE;
     if (s == "equalize_mad")      return Normalization::EQUALIZE_MAD;
+    if (s == "None")              return Normalization::NONE;
     throw std::invalid_argument("Unknown normalization: " + s);
 }
 
@@ -39,8 +42,20 @@ Config load_config(const std::string& path) {
     cfg.prior.rho_max   = tbl["prior"]["rho_max"].value_or(0.8);
 
     // abc
-    cfg.abc.n_simulations = tbl["abc"]["n_simulations"].value_or(10000);
-    cfg.abc.epsilon       = tbl["abc"]["epsilon"].value_or(1.0);
+    cfg.abc.n_simulations   = tbl["abc"]["n_simulations"].value_or(10000);
+    cfg.abc.epsilon         = tbl["abc"]["epsilon"].value_or(-1.0);
+    cfg.abc.acceptance_rate = tbl["abc"]["acceptance_rate"].value_or(-1.0);
+
+    // Determine which criterion to use
+    if (cfg.abc.epsilon > 0.0) {
+        cfg.abc.use_epsilon = true;
+    } else if (cfg.abc.acceptance_rate > 0.0 && cfg.abc.acceptance_rate <= 1.0) {
+        cfg.abc.use_epsilon = false;
+    } else {
+        // Neither epsilon nor acceptance_rate properly set, use a default
+        cfg.abc.epsilon = 1.0;
+        cfg.abc.use_epsilon = true;
+    }
 
     if (auto s = tbl["abc"]["normalization"].value<std::string>())
         cfg.abc.normalization = parse_normalization(*s);
@@ -60,7 +75,6 @@ Config load_config(const std::string& path) {
         std::string("data/infected_timeseries.csv"));
     cfg.io.rewiring_timeseries_path = tbl["io"]["rewiring_timeseries_path"].value_or(
         std::string("data/rewiring_timeseries.csv"));
-    cfg.io.run_diagnostics = tbl["io"]["run_diagnostics"].value_or(true);
 
     return cfg;
 }

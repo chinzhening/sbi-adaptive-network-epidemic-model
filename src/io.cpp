@@ -40,17 +40,20 @@ void save_results(
     }
 
     // Headers
+    int k = layout.size();
     for (size_t i = 0; i < layout.size(); ++i) {
-        file << STAT_NAMES[layout.active[i]];
-        if (i < layout.size() - 1) file << ",";
+        file << "mean:" << STAT_NAMES[layout.active[i]];
+        file << "," << "sd:" << STAT_NAMES[layout.active[i]];
+        if (i < k - 1) file << ",";
     }
     file << ",beta,gamma,rho,distance,accepted\n";
 
     // Data
     for (size_t i = 0; i < stats.size(); ++i) {
-        for (size_t j = 0; j < layout.size(); ++j) {
+        for (size_t j = 0; j < k; ++j) {
             file << stats[i][j];
-            if (j < layout.size() - 1) file << ",";
+            file << "," << stats[i][j + k];
+            if (j < k - 1) file << ",";
         }
         file << ","  << beta[i]
              << ","  << gamma[i]
@@ -116,10 +119,11 @@ std::vector<SimResult> load_observed_data(const IOConfig& io_cfg) {
 void save_simulation_results(
     const std::vector<DenseStats>&        stats,
     const StatLayout&                     layout,
-    const std::filesystem::path&          output_dir
+    const std::filesystem::path&          output_dir,
+    const std::string                     filename
 ) {
     // summary statistics
-    auto stat_filepath = output_dir / "summary_stats.csv";
+    auto stat_filepath = output_dir / filename;
     std::ofstream out(stat_filepath);
     if (!out.is_open()) {
         std::cerr << "Error opening file for writing: " << stat_filepath << "\n";
@@ -129,13 +133,14 @@ void save_simulation_results(
     // Write header
     int k = layout.size();
     for (int i = 0; i < k; ++i) {
-        out << STAT_NAMES[layout.active[i]];
+        out << "mean:" << STAT_NAMES[layout.active[i]];
+        out << ",sd:" << STAT_NAMES[layout.active[i]];
         if (i < k - 1) out << ",";
     }
     out << "\n";
     for (int r = 0; r < (int)stats.size(); ++r) {
         for (int i = 0; i < k; ++i) {
-            out << stats[r][i];
+            out << stats[r][i] << "," << stats[r][i + k];
             if (i < k - 1) out << ",";
         }
         out << "\n";

@@ -145,15 +145,15 @@ SimResult simulate_one(
             }
         }
 
-        // Apply all new infections at once.
-        for (int j : new_inf) state[j] = State::INFECTED;
-
         // Phase 2: Recovery
         for (int i = 0; i < SIM_N; ++i) {
             if (state[i] == State::INFECTED && uni(rng) < gamma) {
                 state[i] = State::RECOVERED;
             }
         }
+
+        // Apply all new infections at once.
+        for (int j : new_inf) state[j] = State::INFECTED;
 
         // Phase 3: Rewiring (adaptive behaviour)
         long long rewire_count = 0;

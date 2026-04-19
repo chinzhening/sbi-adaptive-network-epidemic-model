@@ -8,10 +8,13 @@
   ),
   date: datetime.today(),
 )
-  
+
+// --- Main body of the report ---
 #include "sec_intro.typ"
 #include "sec_rejection_abc.typ"
 #include "sec_summary_statistics.typ"
 #include "sec_advanced_methods.typ"
 
+// --- Appendices and references ---
 #include "refs.typ"
+#include "appendix.typ"

@@ -5,6 +5,7 @@ import pandas as pd
 from pathlib import Path
 import tempfile
 
+BINARY = "./build/simulate"
 
 def simulate(
     beta:        float,
@@ -13,7 +14,6 @@ def simulate(
     n_sim:       int,
     stat_names:  list[str],
     output_dir:  str | None = None,
-    binary:      str = "./build/simulate",
 ) -> dict:
     """Run the C++ simulator for a single parameter set and return results as numpy arrays.
 
@@ -43,7 +43,7 @@ def simulate(
         cleanup    = True
 
     result = subprocess.run([
-        binary,
+        BINARY,
         "--beta",   str(beta),
         "--gamma",  str(gamma),
         "--rho",    str(rho),
@@ -58,7 +58,7 @@ def simulate(
     out = Path(output_dir)
 
     data = {
-        "summary_stats":     pd.read_csv(out / "summary_stats.csv"),
+        "summary_stats":     pd.read_csv(out / "simulation_summary.csv"),
         "output_dir":        str(out),
     }
 
@@ -73,7 +73,6 @@ def simulate_summary_stats(
     params_list: list[dict],
     stat_names:  list[str],
     n_sim:       int,
-    binary:      str = "./build/simulate",
 ) -> pd.DataFrame:
     """Simulate multiple parameter sets and return their summary stats side by side.
 
@@ -106,8 +105,7 @@ def simulate_summary_stats(
             gamma=params["gamma"],
             rho=params["rho"],
             n_sim=n_sim,
-            stat_names=stat_names,
-            binary=binary,
+            stat_names=stat_names
         )
         df = data["summary_stats"]
         df["beta"]  = params["beta"]
@@ -116,7 +114,3 @@ def simulate_summary_stats(
         all_rows.append(df)
 
     return pd.concat(all_rows, ignore_index=True)
-    
-
-    
-    

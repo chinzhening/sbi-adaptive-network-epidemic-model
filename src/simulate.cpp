@@ -67,9 +67,8 @@ int main(int argc, char* argv[]) {
     }
 
     // save results
-    save_simulation_results(s_sim, layout, out);
+    save_simulation_results(s_sim, layout, out, "simulation_summary.csv");
 
     std::cout << "Output directory: " << out << "\n";
     return 0;
-    
 }

@@ -1,4 +1,5 @@
 #include <random>
+#include <algorithm>
 #include <omp.h>
 
 #include "distance.hpp"
@@ -7,6 +8,7 @@
 #include "simulator.hpp"
 #include "summary.hpp"
 
+#include <iostream>
 
 ABCResult run_abc_rejection(const Config& cfg, const DenseStats& s_obs, const StatLayout& layout) {
     ABCResult result;
@@ -31,6 +33,8 @@ ABCResult run_abc_rejection(const Config& cfg, const DenseStats& s_obs, const St
 
     }
 
+    std::cout << "Simulating " << n_samples << " samples...\n";
+
     // store the stats for all samples in a vector of SummaryStatistics
     std::vector<DenseStats> s_sim(n_samples);
 
@@ -48,7 +52,8 @@ ABCResult run_abc_rejection(const Config& cfg, const DenseStats& s_obs, const St
     result.runtime_seconds = end - start;
 
     // normalize
-    std::vector<double> norm_scale = compute_normalization_scale(s_sim, cfg.abc.normalization, layout.size());
+    int k = layout.size() * 2; // mean and sd for each stat
+    std::vector<double> norm_scale = compute_normalization_scale(s_sim, cfg.abc.normalization, k);
     std::vector<DenseStats> s_sim_norm = apply_scaling(s_sim, norm_scale);
     DenseStats s_obs_norm = apply_scaling(s_obs, norm_scale);
 
@@ -59,9 +64,15 @@ ABCResult run_abc_rejection(const Config& cfg, const DenseStats& s_obs, const St
 
     for (int i = 0; i < n_samples; ++i) {
         distances[i] = compute_distance(s_sim_norm[i], s_obs_norm, cfg.abc.distance);
-        accepted[i] = distances[i] <= cfg.abc.epsilon;
-        if (accepted[i])
+    }
+
+    double threshold = cfg.abc.use_epsilon ? cfg.abc.epsilon : compute_quantile(distances, cfg.abc.acceptance_rate);
+
+    for (int i = 0; i < n_samples; ++i) {
+        accepted[i] = distances[i] <= threshold;
+        if (accepted[i]) {
             n_accepted++;
+        }
     }
 
     double acceptance_rate = static_cast<double>(n_accepted) / cfg.abc.n_simulations;
@@ -74,7 +85,22 @@ ABCResult run_abc_rejection(const Config& cfg, const DenseStats& s_obs, const St
         distances,
         accepted,
         acceptance_rate,
-        cfg.abc.epsilon,
+        threshold,
         result.runtime_seconds
     };
+}
+
+double compute_quantile(const std::vector<double>& data, double quantile) {
+    std::vector<double> data_copy = data;
+    std::sort(data_copy.begin(), data_copy.end());
+    int n = data_copy.size();
+    double pos = quantile * (n - 1);
+    int idx = static_cast<int>(std::floor(pos));
+    double frac = pos - idx;
+
+    if (idx + 1 < n) {
+        return data_copy[idx] * (1 - frac) + data_copy[idx + 1] * frac;
+    } else {
+        return data_copy[idx];
+    }
 }

@@ -8,8 +8,9 @@ DenseStats apply_scaling(
     const DenseStats& stats,
     const std::vector<double>& norm_factors
 ) {
-    DenseStats norm_stats(stats.size(), 0.0);
-    for (int idx = 0; idx < (int)stats.size(); ++idx) {
+    int n = stats.size();
+    DenseStats norm_stats(n, 0.0);
+    for (int idx = 0; idx < n; ++idx) {
         norm_stats[idx] = stats[idx] / norm_factors[idx];
     }
     return norm_stats;
@@ -54,7 +55,7 @@ std::vector<double> compute_equalize_variance_scale(
     std::vector<double> mu2(n_stats, 0.0);
     std::vector<double> sd(n_stats, 0.0);
     for (const auto& s : stats_vec) {
-        for (int idx = 0; idx < n_samples; ++idx) {
+        for (int idx = 0; idx < n_stats; ++idx) {
             mu[idx] += s[idx];
             mu2[idx] += s[idx] * s[idx];
         }

@@ -1,3 +1,4 @@
 #import "template.typ":*
 
-#bibliography("main.bib", style: "apa", title: "References", full: true)
+#part("References")
+#bibliography("references.bib", style: "apa", title: none)
